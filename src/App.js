@@ -22,7 +22,7 @@ function App() {
     const {error} = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        scopes: 'https://www.googleapis.com/auth/calendar'
+        scopes: 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events'
       }
     });
     if(error){
@@ -34,12 +34,15 @@ function App() {
   async function signOut() {
     await supabase.auth.signOut();
   }
-
+  const conferenceId = "qsz-pkbc-tnx";
   async function createCalendarEvent(){
     console.log("Creating calendar event");
     const event = {
       'summary': eventName,
       'description': eventDescription,
+      'attendees': [
+        {'email' : 'jvsalss@gmail.com'}
+      ],
       'start': {
         'dateTime': start.toISOString(),
         'timeZone' : Intl.DateTimeFormat().resolvedOptions().timeZone // Vai da Brasil KAKAKAKAK
@@ -47,8 +50,17 @@ function App() {
       'end': {
         'dateTime': end.toISOString(), // Date.toISOString() ->
         'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone // Vai da Brasil KAKAKAKAK
-      }
+      },
+      'conferenceData': {
+        'createRequest': {
+          'conferenceSolutionKey': {
+            'type': 'hangoutsMeet'
+          },
+          'requestId': Math.random().toString(36).substring(7)
+        },
+        'conferenceId': conferenceId
     }
+  }
     await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
       method: "POST",
       headers: {
